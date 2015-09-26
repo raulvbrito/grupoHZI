@@ -1,56 +1,159 @@
-angular.module('starter.controllers', [])
+angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout) {
+.controller('LoginCtrl', function($scope, LoginService, $ionicPopup, $state) {
+            $scope.data = {};
+            $scope.submitting = false;
+            
+            $scope.login = function() {
+            LoginService.loginUser($scope.data.username, $scope.data.password).success(function(data) {
+                                                                                       console.log(data);
+                                                                                       $scope.submitting = true;                                        $state.go('app.perfil');
+                                                                                       }).error(function(data) {
+                                                                                $scope.submitting = true;                                          console.log(data);
+                                                                                                $state.go('app.perfil');
+                                                                                                /*var alertPopup = $ionicPopup.alert({
+                                                                                                 title: 'Falha no login',
+                                                                                                 template: 'Usuário ou senha incorretos'
+                                                                                                 });*/
+                                                                                                });
+            }
+            })
 
-  // With the new view caching in Ionic, Controllers are only called
-  // when they are recreated or on app start, instead of every page change.
-  // To listen for when this page is active (for example, to refresh data),
-  // listen for the $ionicView.enter event:
-  //$scope.$on('$ionicView.enter', function(e) {
-  //});
+.controller('AppCtrl', function($scope, $ionicPopup, $state, $cordovaCamera, $timeout, $cordovaFileTransfer, $ionicLoading, $cordovaDialogs, $cordovaImagePicker) {
+            $scope.data = {};
+            
+            $scope.app = function() {}
+            
+            $scope.submitting = false;
+            
+            $scope.takePicture = function(){
+            $('.loading').fadeIn();
+            var options = {
+            quality: 40,
+            destinationType: Camera.DestinationType.FILE_URI,
+            sourceType: Camera.PictureSourceType.CAMERA,
+            };
+            
+            $cordovaCamera.getPicture(options).then(function(imageURI) {
+                                                    $scope.saveFileToLocalStorage(imageURI, 'jpg');
+                                                    }, function(err) {
+                                                    $('.loading').fadeOut();
+                                                    });
+            
+            
+            //$cordovaCamera.cleanup().then(...);
+												}
+            
+            $scope.saveFileToLocalStorage = function(file, type){
+            console.log(file);
+            console.log(type);
+            var newFileArray = [];
+            var files = [];
+            var fileArray = {};
+            var filesToUpload = localStorage.getItem('filesToUpload');
+            
+            if(filesToUpload != null && filesToUpload != ''){
+            fileArray.fileURI = file;
+            fileArray.fileType = type;
+            
+            newFileArray = JSON.parse(filesToUpload);
+            newFileArray.push(fileArray);
+            
+            localStorage.setItem('filesToUpload', JSON.stringify(newFileArray));
+            }else{
+            fileArray.fileURI = file;
+            fileArray.fileType = type;
+            
+            files.push(fileArray);
+            
+            localStorage.setItem('filesToUpload', JSON.stringify(files));
+            }
+            
+            $scope.fileGrid();
+            }
+            
+            $scope.fileGrid = function(){
+            var filesToUpload = JSON.parse(localStorage.getItem('filesToUpload'));
+            var fileName;
+            $('.files-to-upload-container').html('');
+            
+            if(localStorage.getItem('filesToUpload') != null){
+            $.each(filesToUpload, function(key, file){
+                   fileName = filesToUpload[key].fileURI.substr(filesToUpload[key].fileURI.lastIndexOf('/')+1);
+                   if(filesToUpload[key].fileURI.indexOf("content://") > -1)
+                   fileName = fileName+"."+filesToUpload[key].fileType;
+                   $('.files-to-upload-container').append('<div class="col s6 left file"><div class="file-content icon '+filesToUpload[key].fileType+'"><h6 class="filename text-center center">'+fileName+'</h6></div></div>');
+                   });
+            }
+            
+            $('.loading').fadeOut();
+            }
+            
+            $scope.uploadFile = function(filePosition){
+            $scope.submitting = true;
+            if(localStorage.getItem('filesToUpload') != null){
+            $('.loading').fadeIn();
+            var trustHosts = true;
+            var filesToUpload = JSON.parse(localStorage.getItem('filesToUpload'));
+            var options = {};
+            options.fileKey="file";
+            options.fileName = filesToUpload[filePosition].fileURI.substr(filesToUpload[filePosition].fileURI.lastIndexOf('/')+1);;
+            options.mimeType="*/*";
+            options.chunkedMode = true;
+            options.headers = {
+            Connection: "close"
+            };
+            
+            
+            
+            $cordovaFileTransfer.upload(encodeURI("http://logconect.com.br/controllers/fileUpload.php"), filesToUpload[filePosition].fileURI, options, true)
+            .then(function(result) {
+                  console.log(result);
+                  var filesToUpload = JSON.parse(localStorage.getItem('filesToUpload'));
+                  
+                  console.log(filePosition);
+                  
+                  if((filesToUpload.length - 1) != filePosition++){
+                  $scope.uploadFile(filePosition++);
+                  }else{
+                  localStorage.removeItem('filesToUpload');
+                  $('.progress').fadeOut();
+                  
+                  $scope.fileGrid();
+                  }
+                  $scope.submitting = false;
+                  // Success!
+                  }, function(err) {
+                  console.log(err);
+                  $('.loading').fadeOut();
+                  //var alertPopup = $ionicPopup.alert({
+                  //                                   title: 'Falha no envio de arquivos',
+                  //                                   template: 'Ocorreu um erro no envio de arquivos'
+                  //                                   });
+                  $cordovaDialogs.alert('Ocorreu um erro no envio de arquivos', 'Atencao', 'OK').then(function(){});
+                  $scope.submitting = false;
+                  // Error
+                  }, function (progress) {
+                  });
+            }
+            }
+            
+            })
 
-  // Form data for the login modal
-  $scope.loginData = {};
+.controller('PerfilCtrl', function($scope, $state) {
+            $scope.data = {};
+            
+            $scope.perfil = function() {}
+            
+            //$('.ion-camera').hide();
+            })
 
-  // Create the login modal that we will use later
-  $ionicModal.fromTemplateUrl('templates/login.html', {
-    scope: $scope
-  }).then(function(modal) {
-    $scope.modal = modal;
-  });
-
-  // Triggered in the login modal to close it
-  $scope.closeLogin = function() {
-    $scope.modal.hide();
-  };
-
-  // Open the login modal
-  $scope.login = function() {
-    $scope.modal.show();
-  };
-
-  // Perform the login action when the user submits the login form
-  $scope.doLogin = function() {
-    console.log('Doing login', $scope.loginData);
-
-    // Simulate a login delay. Remove this and replace with your login
-    // code if using a login system
-    $timeout(function() {
-      $scope.closeLogin();
-    }, 1000);
-  };
-})
-
-.controller('PlaylistsCtrl', function($scope) {
-  $scope.playlists = [
-    { title: 'Reggae', id: 1 },
-    { title: 'Chill', id: 2 },
-    { title: 'Dubstep', id: 3 },
-    { title: 'Indie', id: 4 },
-    { title: 'Rap', id: 5 },
-    { title: 'Cowbell', id: 6 }
-  ];
-})
-
-.controller('PlaylistCtrl', function($scope, $stateParams) {
-});
+.controller('EnviarArquivosCtrl', function($scope, $state) {
+            $scope.data = {};
+            
+            $scope.enviar_arquivos = function() {}
+            
+            //$('.ion-camera').show();
+            
+            localStorage.removeItem('filesToUpload');
+            });

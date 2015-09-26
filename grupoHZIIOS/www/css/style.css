@@ -1,1 +1,4 @@
-/* Empty. Add your own CSS if you like */
+.button.button-calm{ background-color: #296eaa; }
+.brand-name{ color: #5a5a5a !important; }
+.bar-default{ color: #296eaa; }
+.bar-stable{ border-bottom: 2px solid #296eaa !important; }
