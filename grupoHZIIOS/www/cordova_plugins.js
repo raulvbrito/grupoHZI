@@ -222,6 +222,14 @@ module.exports = [
         "clobbers": [
             "window.FileTransfer"
         ]
+    },
+    {
+        "file": "plugins/de.appplant.cordova.plugin.email-composer/www/email_composer.js",
+        "id": "de.appplant.cordova.plugin.email-composer.EmailComposer",
+        "clobbers": [
+            "cordova.plugins.email",
+            "plugin.email"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -233,7 +241,8 @@ module.exports.metadata =
     "cordova-plugin-splashscreen": "2.1.0",
     "cordova-plugin-camera": "1.2.0",
     "cordova-plugin-file": "3.0.0",
-    "cordova-plugin-file-transfer": "1.3.0"
+    "cordova-plugin-file-transfer": "1.3.0",
+    "de.appplant.cordova.plugin.email-composer": "0.8.3dev"
 }
 // BOTTOM OF METADATA
 });

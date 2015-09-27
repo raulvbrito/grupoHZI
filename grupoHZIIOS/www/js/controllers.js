@@ -19,7 +19,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             }
             })
 
-.controller('AppCtrl', function($scope, $ionicPopup, $state, $cordovaCamera, $timeout, $cordovaFileTransfer, $ionicLoading, $cordovaDialogs, $cordovaImagePicker) {
+.controller('AppCtrl', function($scope, $ionicPopup, $state, $cordovaCamera, $timeout, $cordovaFileTransfer, $ionicLoading, $cordovaDialogs, $cordovaImagePicker, $cordovaEmailComposer) {
             $scope.data = {};
             
             $scope.app = function() {}
@@ -71,7 +71,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             
             $scope.fileGrid();
             }
-            
+			
             $scope.fileGrid = function(){
             var filesToUpload = JSON.parse(localStorage.getItem('filesToUpload'));
             var fileName;
@@ -82,8 +82,10 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                    fileName = filesToUpload[key].fileURI.substr(filesToUpload[key].fileURI.lastIndexOf('/')+1);
                    if(filesToUpload[key].fileURI.indexOf("content://") > -1)
                    fileName = fileName+"."+filesToUpload[key].fileType;
-                   $('.files-to-upload-container').append('<div class="col s6 left file"><div class="file-content icon '+filesToUpload[key].fileType+'"><h6 class="filename text-center center">'+fileName+'</h6></div></div>');
+                   $('.files-to-upload-container').append('<div class="col col-50 file" style="background-image: url('+filesToUpload[key].fileURI+')" ng-click="sendEmail('+filesToUpload[key].fileURI+')"><div class="file-content icon '+filesToUpload[key].fileType+'"><h6 class="filename text-center center">'+fileName+'</h6></div></div>');
+				   //$scope.sendEmail(encodeURI(filesToUpload[key].fileURI));
                    });
+			
             }
             
             $('.loading').fadeOut();
@@ -137,6 +139,22 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                   });
             }
             }
+			
+			$scope.sendEmail = function(fileURI){
+			console.log('oi');
+			console.log(fileURI);
+			var email = {
+			to: 'raulvbrito@gmail.com',
+			attachments: [
+						  fileURI
+						  ],
+			subject: 'Arquivo via Email',
+			body: 'Prezado(a) Cliente, <br><br> Você acaba de receber um(a) <b>arquivo</b>. Clique no mesmo para abri-lo ou baixa-lo.',
+			isHtml: true
+			};
+			console.log('vai mandar email agora');
+			$cordovaEmailComposer.open(email).then(null, function(){});
+			}
             
             })
 
@@ -157,3 +175,9 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             
             localStorage.removeItem('filesToUpload');
             });
+
+.controller('ListarArquivosCtrl', function($scope, $state) {
+			$scope.data = {};
+			
+			$scope.listar_arquivos = function() {}
+			});

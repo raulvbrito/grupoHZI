@@ -56,3 +56,14 @@
 .spinner{
     margin: 0 auto;
 }
+.file{
+    background-size: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: px;
+    height: 6rem;
+    padding-top: 2rem;
+}
+.filename{
+    text-shadow: 1px 1px 1px #000;
+}

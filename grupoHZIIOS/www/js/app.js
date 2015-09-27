@@ -58,6 +58,16 @@ angular.module('grupoHZIApp', ['ionic', 'grupoHZIApp.controllers', 'grupoHZIApp.
                }
                })
         
+        .state('app.listar_arquivos', {
+               url: '/listar_arquivos',
+               views: {
+               'menuContent': {
+               templateUrl: 'templates/listar_arquivos.html',
+               controller: 'ListarArquivosCtrl'
+               }
+               }
+               })
+        
         // if none of the above states are matched, use this as the fallback
         $urlRouterProvider.otherwise('/login');
         });
