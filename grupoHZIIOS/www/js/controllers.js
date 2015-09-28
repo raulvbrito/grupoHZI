@@ -19,7 +19,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             }
             })
 
-.controller('AppCtrl', function($scope, $ionicPopup, $state, $cordovaCamera, $timeout, $cordovaFileTransfer, $ionicLoading, $cordovaDialogs, $cordovaImagePicker, $cordovaEmailComposer) {
+.controller('AppCtrl', function($scope, $ionicPopup, $state, $cordovaCamera, $timeout, $cordovaFileTransfer, $ionicLoading, $cordovaDialogs, $cordovaImagePicker, $cordovaEmailComposer, $cordovaToast) {
             $scope.data = {};
             
             $scope.app = function() {}
@@ -36,6 +36,10 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             
             $cordovaCamera.getPicture(options).then(function(imageURI) {
                                                     $scope.saveFileToLocalStorage(imageURI, 'jpg');
+													
+													setTimeout(function(){
+															   $cordovaToast.showLongBottom('Foto capturada').then(function(success) {}, function (error) {});
+														}, 1000);
                                                     }, function(err) {
                                                     $('.loading').fadeOut();
                                                     });
@@ -113,8 +117,6 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                   console.log(result);
                   var filesToUpload = JSON.parse(localStorage.getItem('filesToUpload'));
                   
-                  console.log(filePosition);
-                  
                   if((filesToUpload.length - 1) != filePosition++){
                   $scope.uploadFile(filePosition++);
                   }else{
@@ -122,6 +124,10 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                   $('.progress').fadeOut();
                   
                   $scope.fileGrid();
+				  
+				  setTimeout(function(){
+							 $cordovaToast.showLongBottom('Arquivos enviados').then(function(success) {}, function (error) {});
+					}, 1000);
                   }
                   $scope.submitting = false;
                   // Success!
@@ -141,7 +147,6 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             }
 			
 			$scope.sendEmail = function(fileURI){
-			console.log('oi');
 			console.log(fileURI);
 			var email = {
 			to: 'raulvbrito@gmail.com',
@@ -152,8 +157,58 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
 			body: 'Prezado(a) Cliente, <br><br> Você acaba de receber um(a) <b>arquivo</b>. Clique no mesmo para abri-lo ou baixa-lo.',
 			isHtml: true
 			};
-			console.log('vai mandar email agora');
 			$cordovaEmailComposer.open(email).then(null, function(){});
+			}
+			
+			$scope.downloadFileGrid = function(){
+			
+			}
+			
+			$scope.downloadFileGrid();
+			
+			$scope.downloadFile = function(fileURL){
+			$('.loading').fadeIn();
+			var url = "http://cdn.wall-pix.net/albums/art-space/00030109.jpg";
+			var targetPath = cordova.file.documentsDirectory + "testImage.png";
+			var trustHosts = true;
+			var options = {};
+			
+			$cordovaFileTransfer.download(url, targetPath, options, trustHosts)
+			.then(function(result) {
+				  // Success!
+				  console.log(result);
+				  console.log('baixou');
+      }, function(err) {
+				  // Error
+				  console.log(err);
+				  console.log('deu erro no download');
+      }, function (progress) {
+				  $timeout(function () {
+						   $scope.downloadProgress = (progress.loaded / progress.total) * 100;
+						   })
+      });
+			}
+			
+			$scope.pickFile = function(){
+			var options = {
+   maximumImagesCount: 10,
+   width: 800,
+   height: 800,
+   quality: 80
+			};
+			
+			$cordovaImagePicker.getPictures(options)
+			.then(function (results) {
+      for (var i = 0; i < results.length; i++) {
+				  $scope.saveFileToLocalStorage(results[i], 'jpg');
+      }
+                  setTimeout(function(){
+						$cordovaToast.showLongBottom('Arquivos selecionados').then(function(success) {}, function (error) {});
+					}, 1000);
+				  }, function(error) {
+      // error getting photos
+				  console.log(error);
+				  });
 			}
             
             })
@@ -174,10 +229,56 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             //$('.ion-camera').show();
             
             localStorage.removeItem('filesToUpload');
-            });
+            })
 
 .controller('ListarArquivosCtrl', function($scope, $state) {
 			$scope.data = {};
 			
 			$scope.listar_arquivos = function() {}
-			});
+			
+			})
+
+.run(function($http, $cordovaPush) {
+	 setTimeout(function(){
+  var iosConfig = {
+	 "badge": true,
+	 "sound": true,
+	 "alert": true,
+  };
+	 console.log(iosConfig);
+	 
+	 $cordovaPush.register(iosConfig).then(function(deviceToken) {
+																  // Success -- send deviceToken to server, and store for future use
+										   console.log("deviceToken: " + deviceToken);
+										   console.log('antes do post');
+										   $http.post("http://logconect.com.br/controllers/iOSPushNotification.php", {user: "Teste", tokenID: deviceToken});
+										   console.log('depois do post');
+																  }, function(err) {
+										   alert("Registration error: " + err);
+																  });
+				}, 5000);
+	 
+							/*$rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
+										   console.log('entrou no notification');
+										   if (notification.alert) {
+										   navigator.notification.alert(notification.alert);
+										   }
+										   
+										   if (notification.sound) {
+										   var snd = new Media(event.sound);
+										   snd.play();
+										   }
+										   
+										   if (notification.badge) {
+										   $cordovaPush.setBadgeNumber(notification.badge).then(function(result) {
+																								// Success!
+																								console.log(result);
+																								}, function(err) {
+																								console.log(err);
+																								// An error occurred. Show a message to the user
+																								});
+										   }
+										   });*/
+							
+	 });
+	 
