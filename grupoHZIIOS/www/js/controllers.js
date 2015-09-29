@@ -1,6 +1,6 @@
 angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
 
-.controller('LoginCtrl', function($scope, LoginService, $ionicPopup, $state) {
+.controller('LoginCtrl', function($scope, LoginService, $ionicPopup, $state, $rootScope, $ionicUser, $ionicPush, $log) {
             $scope.data = {};
             $scope.submitting = false;
             
@@ -17,6 +17,47 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                                                                                                  });*/
                                                                                                 });
             }
+            
+            $scope.identifyUser = function() {
+            $log.info('Ionic User: Identifying with Ionic User service');
+            
+            var user = $ionicUser.get();
+            if(!user.user_id) {
+            // Set your user_id here, or generate a random one.
+            user.user_id = $ionicUser.generateGUID();
+            };
+            
+            // Add some metadata to your user object.
+            angular.extend(user, {
+                           name: 'Ionitron',
+                           bio: 'I come from planet Ion'
+                           });
+            
+            // Identify your user with the Ionic User Service
+            $ionicUser.identify(user).then(function(){
+                                           $scope.identified = true;
+                                           alert('Identified user ' + user.name + '\n ID ' + user.user_id);
+                                           $scope.pushRegister();
+                                           });
+            };
+            
+            $scope.pushRegister = function() {
+            $log.info('Ionic Push: Registering user');
+            
+            // Register with the Ionic Push service.  All parameters are optional.
+            $ionicPush.register({
+                                canShowAlert: true, //Can pushes show an alert on your screen?
+                                canSetBadge: true, //Can pushes update app icon badges?
+                                canPlaySound: true, //Can notifications play a sound?
+                                canRunActionsOnWake: true, //Can run actions outside the app,
+                                onNotification: function(notification) {
+                                // Handle new push notifications here
+                                // $log.info(notification);
+                                return true;
+                                }
+                                });
+            };
+            
             })
 
 .controller('AppCtrl', function($scope, $ionicPopup, $state, $cordovaCamera, $timeout, $cordovaFileTransfer, $ionicLoading, $cordovaDialogs, $cordovaImagePicker, $cordovaEmailComposer, $cordovaToast) {
@@ -238,7 +279,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
 			
 			})
 
-.run(function($http, $cordovaPush) {
+.run(function($http, $cordovaPush, $rootScope) {
 	 setTimeout(function(){
   var iosConfig = {
 	 "badge": true,
@@ -251,14 +292,31 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
 																  // Success -- send deviceToken to server, and store for future use
 										   console.log("deviceToken: " + deviceToken);
 										   console.log('antes do post');
-										   $http.post("http://logconect.com.br/controllers/iOSPushNotification.php", {user: "Teste", tokenID: deviceToken});
+                                           $http.post("https://push.ionic.io/api/v1/push", {"tokens":[
+                                                                                                      deviceToken
+                                                                                                      ],
+                                                      "notification":{
+                                                      "alert":"Hello World!",
+                                                      "ios":{
+                                                      "badge":1,
+                                                      "sound":"ping.aiff",
+                                                      "expiry": 1423238641,
+                                                      "priority": 10,
+                                                      "contentAvailable": true,
+                                                      "payload":{
+                                                      "key1":"value",
+                                                      "key2":"value"
+                                                      }
+                                                      }
+                                                      }
+                                                      });
 										   console.log('depois do post');
 																  }, function(err) {
 										   alert("Registration error: " + err);
 																  });
 				}, 5000);
 	 
-							/*$rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
+							$rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
 										   console.log('entrou no notification');
 										   if (notification.alert) {
 										   navigator.notification.alert(notification.alert);
@@ -275,10 +333,9 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
 																								console.log(result);
 																								}, function(err) {
 																								console.log(err);
-																								// An error occurred. Show a message to the user
 																								});
 										   }
-										   });*/
+										   });
 							
 	 });
 	 
