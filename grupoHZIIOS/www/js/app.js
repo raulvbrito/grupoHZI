@@ -17,7 +17,7 @@ angular.module('grupoHZIApp', ['ionic','ionic.service.core','ionic.service.push'
     }
     if (window.StatusBar) {
       // org.apache.cordova.statusbar required
-      StatusBar.styleDefault();
+      StatusBar.styleLightContent();
     }
   });
 })

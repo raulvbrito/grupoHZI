@@ -19,7 +19,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             }
             
             $rootScope.$on('$cordovaPush:tokenReceived', function(event, data){
-                           alert('success' + data.token);
+                           console.log(data.token);
                            console.log(data.platform);
                            $scope.token = data.token;
                            })
@@ -42,7 +42,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             // Identify your user with the Ionic User Service
             $ionicUser.identify(user).then(function(){
                                            $scope.identified = true;
-                                           alert('Identified user ' + user.name + '\n ID ' + user.user_id);
+                                           console.log('Identified user ' + user.name + '\n ID ' + user.user_id);
                                            $scope.pushRegister();
                                            });
             };
