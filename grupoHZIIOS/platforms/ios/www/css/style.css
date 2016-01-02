@@ -1,0 +1,5 @@
+.button.button-calm{ background-color: rgba(41, 110, 170, 0.26); border-color: #296eaa; color: #296eaa; }
+.brand-name{ color: #5a5a5a !important; }
+.bar-default{ color: #296eaa; }
+.bar-stable{ border-bottom: 2px solid #296eaa !important; background-image: linear-gradient(0deg, #296eaa, #296eaa 50%, #296eaa 50%) !important; background-color: #296eaa !important; }
+.filename, .menu-title.title.brand-name, .ion-navicon, .header-item, .right-header-button{ color: #fff !important; }

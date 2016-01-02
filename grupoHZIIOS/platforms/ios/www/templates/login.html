@@ -1,0 +1,23 @@
+<ion-view view-title="Login" name="login-view">
+    <ion-content class="padding" id="login-content" overflow-scroll="true">
+        <div class="icon logo"></div>
+        <h1 class="brand-name">grupo<b>HZI</b></h1>
+        <div class="list list-inset">
+            <form>
+                <label class="item item-input">
+                    <input type="email" placeholder="Login" ng-model="loginData.username" required>
+                        </label>
+                <label class="item item-input">
+                    <input type="password" placeholder="Senha" ng-model="loginData.password" required>
+                        </label>
+                <button class="button button-block button-calm" ladda="submitting" data-style="expand-right" ng-click="login()"><span ng-show="submitting">Entrando</span><span ng-show="!submitting">Entrar</span></button>
+                <button class="button button-block button-dark" ng-click="identifyUser()">
+                    Identify a user
+                </button>
+                <button class="button button-block button-positive" ng-if="identified" ng-click="pushRegister()">
+                    Register for Push
+                </button>
+            </form>
+        </div>
+    </ion-content>
+</ion-view>
