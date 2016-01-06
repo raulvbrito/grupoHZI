@@ -5,17 +5,24 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             $scope.submitting = false;
             
             $scope.login = function() {
-            LoginService.loginUser($scope.data.username, $scope.data.password).success(function(data) {
-                                                                                       console.log(data);
-                                                                                       $scope.submitting = true;                                        $state.go('app.perfil');
-                                                                                       }).error(function(data) {
-                                                                                $scope.submitting = true;                                          console.log(data);
-                                                                                                $state.go('app.perfil');
-                                                                                                /*var alertPopup = $ionicPopup.alert({
-                                                                                                 title: 'Falha no login',
-                                                                                                 template: 'Usuário ou senha incorretos'
-                                                                                                 });*/
-                                                                                                });
+            console.log($('.ng-valid-email').val());
+            var request = $.ajax({
+                                 url: "http://hzi.net.br/contract_key/ajax/get_login/",
+                                 method: "POST",
+                                 data: { email : $('.email').val(), password: CryptoJS.MD5($('.password').val()).toString() },
+                                 dataType: "json"
+                                 });
+            
+            request.done(function(msg) {
+                         console.log(msg);
+                         localStorage.setItem('userData', JSON.stringify(msg));
+                         if(msg){
+                         $state.go('app.perfil');
+                         }else{
+                         console.log('deu ruim');
+                         }
+                         });
+            
             }
             
             $rootScope.$on('$cordovaPush:tokenReceived', function(event, data){

@@ -5,10 +5,10 @@
         <div class="list list-inset">
             <form>
                 <label class="item item-input">
-                    <input type="email" placeholder="Login" ng-model="loginData.username" required>
+                    <input type="email" placeholder="Login" class="email" ng-model="loginData.username" required>
                         </label>
                 <label class="item item-input">
-                    <input type="password" placeholder="Senha" ng-model="loginData.password" required>
+                    <input type="password" placeholder="Senha" class="password" ng-model="loginData.password" required>
                         </label>
                 <button class="button button-block button-calm" ladda="submitting" data-style="expand-right" ng-click="login()"><span ng-show="submitting">Entrando</span><span ng-show="!submitting">Entrar</span></button>
                 <button class="button button-block button-dark" ng-click="identifyUser()">
