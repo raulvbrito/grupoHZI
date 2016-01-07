@@ -214,12 +214,6 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
 			$cordovaEmailComposer.open(email).then(null, function(){});
 			}
 			
-			$scope.downloadFileGrid = function(){
-			
-			}
-			
-			$scope.downloadFileGrid();
-			
 			$scope.downloadFile = function(fileURL){
 			$('.loading').fadeIn();
 			var url = "http://cdn.wall-pix.net/albums/art-space/00030109.jpg";
@@ -296,6 +290,61 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
 			$scope.data = {};
 			
 			$scope.listar_arquivos = function() {}
+            
+            $scope.downloadFileGrid = function(){
+            var userData = JSON.parse(localStorage.getItem('userData'));
+            
+            console.log(userData);
+            var request = $.ajax({
+                                 url: "http://hzi.net.br/contract_key/ajax/get_files/",
+                                 method: "POST",
+                                 data: { email : userData.email, password: userData.password },
+                                 dataType: "json"
+                                 });
+            
+            request.done(function(msg) {
+                         console.log(msg);
+                         if(msg){
+                         $.each(msg, function(index, file){
+                                console.log(file);
+                                $('.files-to-download-container').append('<div class="col s6 left file" ng-click="fileView(this)" file-link="'+ file.link +'"><div class="file-content icon"><h6 class="filename text-center center">'+file.imagem+'</h6></div></div>');
+                                console.log($('.files-to-download-container').html());
+                                });
+                         }else{
+                         Materialize.toast('Ocorreu um erro ao recuperar os arquivos', 3000);
+                         }
+                         });
+            }
+            
+            $scope.downloadFileGrid();
+            
+            $scope.fileView = function(element){
+            console.log(element);
+            var fileTransfer = new FileTransfer();
+            var uri = encodeURI($(element).attr('file-link'));
+            var fileURL = cordova.file.dataDirectory;
+            
+            fileTransfer.download(
+                                  uri,
+                                  fileURL + uri.substring(uri.lastIndexOf('/')+1),
+                                  function(entry) {
+                                  console.log(entry);
+                                  console.log("download complete: " + entry.toURL());
+                                  },
+                                  function(error) {
+                                  console.log(error);
+                                  console.log("download error source " + error.source);
+                                  console.log("download error target " + error.target);
+                                  console.log("upload error code" + error.code);
+                                  },
+                                  false,
+                                  {
+                                  headers: {
+                                  "Authorization": "Basic dGVzdHVzZXJuYW1lOnRlc3RwYXNzd29yZA=="
+                                  }
+                                  }
+                                  );
+            }
 			
 			})
 
