@@ -308,7 +308,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             var userData = JSON.parse(localStorage.getItem('userData'));
             var request = $.ajax({
                                  url: "http://hzi.net.br/contract_key/ajax/get_agendamentos/",
-                                 method: "GET",
+                                 method: "POST",
                                  data: { email : userData.email.toString(), password: userData.password.toString() },
                                  dataType: "json",
                                  success: function(msg){
@@ -320,6 +320,15 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                                  console.log(msg);
                                  }
                                  });
+
+			request.done(function(msg) {
+			                         console.log(msg);
+			                         if(msg){
+			                         console.log(msg);
+			                         }else{
+			                         console.log('deu ruim');
+			                         }
+			                         });
             })
 
 .controller('EnviarArquivosCtrl', function($scope, $state) {
