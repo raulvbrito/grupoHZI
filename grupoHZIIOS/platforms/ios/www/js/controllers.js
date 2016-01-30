@@ -9,6 +9,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                 $state.go('app.perfil');
             
             $scope.login = function() {
+			console.log($('.email').val());
             var request = $.ajax({
                                  url: "http://hzi.net.br/contract_key/ajax/get_login/",
                                  method: "POST",
@@ -18,7 +19,9 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             
             request.done(function(msg) {
                          console.log(msg);
+						 console.log(localStorage.getItem('userData'));
                          localStorage.setItem('userData', JSON.stringify(msg));
+						 console.log(localStorage.getItem('userData'));
                          if(msg){
                          $state.go('app.perfil');
                          }else{
@@ -266,6 +269,13 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                 $scope.$broadcast('scroll.refreshComplete');
                 $scope.$apply()
             }
+			
+			$scope.logout = function(){
+				console.log(localStorage.getItem('userData'));
+				localStorage.removeItem('userData');
+				console.log(localStorage.getItem('userData'));
+				$state.go('login');
+			}
             
             })
 
@@ -279,25 +289,17 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                                  url: "http://hzi.net.br/contract_key/ajax/get_notification/",
                                  method: "POST",
                                  data: { email : userData.email.toString(), password: userData.password.toString() },
-                                 dataType: "json",
-                                 success: function(msg){
-                                    console.log('sucesso');
-                                    console.log(msg);
-                                 },
-                                 error: function(msg){
-                                    console.log('erro notification');
-                                    console.log(msg);
-                                 }
+                                 dataType: "json"
                                  });
             
-//            request.done(function(msg) {
-//                         console.log(msg);
-//                         if(msg){
-//                         console.log(msg);
-//                         }else{
-//                         console.log('deu ruim');
-//                         }
-//                         });
+            request.done(function(msg) {
+                         console.log(msg);
+                         if(msg){
+                         console.log(msg);
+                         }else{
+                         console.log('deu ruim');
+                         }
+                         });
             })
 
 .controller('AgendamentosCtrl', function($scope, $state) {
@@ -360,7 +362,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                          if(msg){
                          $.each(msg, function(index, file){
                                 console.log(file);
-                                $('.files-to-download-container').append('<div class="col s6 left file" ng-click="fileView(this)" file-link="'+ file.link +'"><div class="file-content icon"><h6 class="filename text-center center">'+file.imagem+'</h6></div></div>');
+                                $('.files-to-download-container').append('<div class="col s6 left file" ng-click="fileView(this)" file-link="'+ file.link +'" style="background-image: url('+file.link+')"><div class="file-content icon"><h6 class="filename text-center center">'+file.imagem+'</h6></div></div>');
                                 console.log($('.files-to-download-container').html());
                                 });
                          }else{
