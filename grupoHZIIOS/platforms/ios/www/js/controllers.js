@@ -285,7 +285,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                                     console.log(msg);
                                  },
                                  error: function(msg){
-                                    console.log('erro');
+                                    console.log('erro notification');
                                     console.log(msg);
                                  }
                                  });
@@ -316,7 +316,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                                  console.log(msg);
                                  },
                                  error: function(msg){
-                                 console.log('erro');
+                                 console.log('erro agendamento');
                                  console.log(msg);
                                  }
                                  });
