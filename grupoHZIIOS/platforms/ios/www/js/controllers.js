@@ -341,7 +341,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             localStorage.removeItem('filesToUpload');
             })
 
-.controller('ListarArquivosCtrl', function($scope, $state) {
+.controller('ListarArquivosCtrl', function($scope, $state, $ionicPopup) {
 			$scope.data = {};
 			
 			$scope.listar_arquivos = function() {}
@@ -362,7 +362,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                          if(msg){
                          $.each(msg, function(index, file){
                                 console.log(file);
-                                $('.files-to-download-container').append('<div class="col s6 left file" ng-click="fileView(this)" file-link="'+ file.link +'" style="background-image: url('+file.link+')"><div class="file-content icon"><h6 class="filename text-center center">'+file.imagem+'</h6></div></div>');
+                                $('.files-to-download-container').append('<div class="col s6 left file" ng-click="fileView(this, '+file.visualizado+')" file-link="'+ file.link +'" style="background-image: url('+file.link+')"><div class="file-content icon"><h6 class="filename text-center center">'+file.imagem+'</h6></div></div>');
                                 console.log($('.files-to-download-container').html());
                                 });
                          }else{
@@ -373,13 +373,14 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             
             $scope.downloadFileGrid();
             
-            $scope.fileView = function(element){
-            console.log(element);
-            var fileTransfer = new FileTransfer();
-            var uri = encodeURI($(element).attr('file-link'));
-            var fileURL = cordova.file.dataDirectory;
+            $scope.fileView = function(element, visualizado){
+				console.log(element);
+				if(visualizado == "sim"){
+					var fileTransfer = new FileTransfer();
+					var uri = encodeURI($(element).attr('file-link'));
+					var fileURL = cordova.file.dataDirectory;
             
-            fileTransfer.download(
+					fileTransfer.download(
                                   uri,
                                   fileURL + uri.substring(uri.lastIndexOf('/')+1),
                                   function(entry) {
@@ -399,6 +400,23 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                                   }
                                   }
                                   );
+				}else if(visualizado == "nao"){
+					var myPopup = $ionicPopup.show({
+						template: 'Você concorda que está fazendo visualizando o arquivo selecionado nesta data?',
+						title: 'Controle de Visualização de Arquivos',
+						subTitle: '',
+						scope: $scope,
+						buttons: [{
+							text: '<span class="second-color">Cancelar</span>',
+							type: 'button-clear'
+						},
+						{
+							text: '<b class="second-color">Sim</b>',
+							type: 'button-clear',
+							onTap: function(e) {}
+						}]
+					});
+				}
             }
 			
 			})

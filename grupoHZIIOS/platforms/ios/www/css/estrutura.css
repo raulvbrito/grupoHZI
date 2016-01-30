@@ -73,3 +73,15 @@
 .filename{
     text-shadow: 1px 1px 1px #000;
 }
+
+.popup{
+	border-radius: 12px !important;
+}
+
+.popup h3{
+	font-size: 1.1rem;
+	font-weight: 600;
+}
+.popup h5{
+	font-size: 0.8rem;
+}
