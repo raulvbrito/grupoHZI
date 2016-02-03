@@ -23,6 +23,8 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                          localStorage.setItem('userData', JSON.stringify(msg));
 						 console.log(localStorage.getItem('userData'));
                          if(msg){
+						 $scope.identifyUser();
+						 $scope.pushRegister();
                          $state.go('app.perfil');
                          }else{
                          console.log('deu ruim');
@@ -32,7 +34,24 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             }
             
             $rootScope.$on('$cordovaPush:tokenReceived', function(event, data){
-                           console.log(data.token);
+				var userData = JSON.parse(localStorage.getItem('userData'));
+				var request = $.ajax({
+                                 url: "http://hzi.net.br/contract_key/ajax/set_devicekey/",
+                                 method: "POST",
+                                 data: { email : userData.email, password: userData.password.toString(), key: data.token },
+                                 dataType: "json"
+                                 });
+            
+            request.done(function(msg) {
+                         console.log(msg);
+                         if(msg){
+                         console.log('foi');
+                         }else{
+                         console.log('deu ruim');
+                         }
+                         });
+
+                           console.log('esse é o token'+data.token);
                            console.log(data.platform);
                            $scope.token = data.token;
                            })
@@ -283,7 +302,8 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             $scope.data = {};
             
             $scope.perfil = function() {}
-            
+			
+			console.log('teste notifi');
             var userData = JSON.parse(localStorage.getItem('userData'));
             var request = $.ajax({
                                  url: "http://hzi.net.br/contract_key/ajax/get_notification/",
@@ -296,6 +316,11 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                          console.log(msg);
                          if(msg){
                          console.log(msg);
+							$.each(msg, function(index, notification){
+                                console.log(notification);
+                                $('.notification-container').append('<div class="col s6 left notification"><div class="notification-content icon"><h5 class="notification-name">'+notification.descricao+'</h5><h6 class="notification-time">'+notification.data_cadastro.split(' ')[0].split('-')[2]+'/'+notification.data_cadastro.split(' ')[0].split('-')[1]+'/'+notification.data_cadastro.split(' ')[0].split('-')[0]+' '+notification.data_cadastro.split(' ')[1].split(':')[0]+':'+notification.data_cadastro.split(' ')[1].split(':')[1]+'</h6></div></div>');
+                                console.log($('.files-to-download-container').html());
+							});
                          }else{
                          console.log('deu ruim');
                          }
@@ -326,9 +351,12 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
 			request.done(function(msg) {
 			                         console.log(msg);
 			                         if(msg){
-			                         console.log(msg);
+										$.each(msg, function(index, agendamento){
+											console.log(agendamento);
+												$('.agendamentos-container').append('<a class="item" href="#">                <h2>'+agendamento.tipo+'</h2><p>'+agendamento.status+' - '+agendamento.data.split(' ')[0].split('-')[2]+'/'+agendamento.data.split(' ')[0].split('-')[1]+'/'+agendamento.data.split(' ')[0].split('-')[0]+'</p></a>');
+										});
 			                         }else{
-			                         console.log('deu ruim');
+										console.log('deu ruim');
 			                         }
 			                         });
             })
@@ -454,7 +482,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                                                       });
 										   console.log('depois do post');
 																  }, function(err) {
-										   alert("Registration error: " + err);
+										   console.log("Registration error: " + err);
 																  });
 				}, 5000);
 	 

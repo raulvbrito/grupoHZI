@@ -85,3 +85,9 @@
 .popup h5{
 	font-size: 0.8rem;
 }
+
+.notification{
+	background-color: #ededed;
+	border-radius: 4px;
+	padding: 0 1rem;
+}
