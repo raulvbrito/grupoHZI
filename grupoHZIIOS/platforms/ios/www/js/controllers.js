@@ -9,7 +9,6 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                 $state.go('app.perfil');
             
             $scope.login = function() {
-			console.log($('.email').val());
             var request = $.ajax({
                                  url: "http://hzi.net.br/contract_key/ajax/get_login/",
                                  method: "POST",
@@ -18,10 +17,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                                  });
             
             request.done(function(msg) {
-                         console.log(msg);
-						 console.log(localStorage.getItem('userData'));
                          localStorage.setItem('userData', JSON.stringify(msg));
-						 console.log(localStorage.getItem('userData'));
                          if(msg){
 						 $scope.identifyUser();
 						 $scope.pushRegister();
@@ -43,7 +39,6 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                                  });
             
             request.done(function(msg) {
-                         console.log(msg);
                          if(msg){
                          console.log('foi');
                          }else{
@@ -191,7 +186,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             
             
             
-            $cordovaFileTransfer.upload(encodeURI("http://logconect.com.br/controllers/fileUpload.php"), filesToUpload[filePosition].fileURI, options, true)
+            $cordovaFileTransfer.upload(encodeURI("http://hzi.net.br/contract_key/ajax/set_file_save/"), filesToUpload[filePosition].fileURI, options, true)
             .then(function(result) {
                   console.log(result);
                   var filesToUpload = JSON.parse(localStorage.getItem('filesToUpload'));
@@ -353,7 +348,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
 			                         if(msg){
 										$.each(msg, function(index, agendamento){
 											console.log(agendamento);
-												$('.agendamentos-container').append('<a class="item" href="#">                <h2>'+agendamento.tipo+'</h2><p>'+agendamento.status+' - '+agendamento.data.split(' ')[0].split('-')[2]+'/'+agendamento.data.split(' ')[0].split('-')[1]+'/'+agendamento.data.split(' ')[0].split('-')[0]+'</p></a>');
+												$('.agendamentos-container').append('<a class="item" href="#">                <h2>'+agendamento.tipo+'</h2><p>'+agendamento.status+' - '+agendamento.data.split(' ')[0].split('-')[2]+'/'+agendamento.data.split(' ')[0].split('-')[1]+'/'+agendamento.data.split(' ')[0].split('-')[0]+' - '+agendamento.descricao+'</p></a>');
 										});
 			                         }else{
 										console.log('deu ruim');
@@ -386,26 +381,22 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
                                  });
             
             request.done(function(msg) {
-                         console.log(msg);
                          if(msg){
-                         $.each(msg, function(index, file){
-                                console.log(file);
-                                $('.files-to-download-container').append('<div class="col s6 left file" ng-click="fileView(this, '+file.visualizado+')" file-link="'+ file.link +'" style="background-image: url('+file.link+')"><div class="file-content icon"><h6 class="filename text-center center">'+file.imagem+'</h6></div></div>');
-                                console.log($('.files-to-download-container').html());
-                                });
+//                         $.each(msg, function(index, file){
+//                                $('.files-to-download-container').append('<div class="col s6 left file" ng-click="fileView()" file-link="'+ file.link +'" style="background-image: url('+file.link+')"><div class="file-content icon"><h6 class="filename text-center center">'+file.imagem+'</h6></div></div>');
+//                                });
+						 
+								$scope.files = msg;
                          }else{
-                         Materialize.toast('Ocorreu um erro ao recuperar os arquivos', 3000);
                          }
                          });
             }
             
-            $scope.downloadFileGrid();
-            
-            $scope.fileView = function(element, visualizado){
+            $scope.fileView = function(element, visualizado, link){
 				console.log(element);
 				if(visualizado == "sim"){
 					var fileTransfer = new FileTransfer();
-					var uri = encodeURI($(element).attr('file-link'));
+					var uri = link;
 					var fileURL = cordova.file.dataDirectory;
             
 					fileTransfer.download(
@@ -446,6 +437,8 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
 					});
 				}
             }
+			
+			$scope.downloadFileGrid();
 			
 			})
 

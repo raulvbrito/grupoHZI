@@ -5,6 +5,12 @@
                 <ion-spinner></ion-spinner>
             </div>
         </div>
-        <div class="files-to-download-container row responsive-sm"></div>
+        <div class="files-to-download-container row responsive-sm">
+			<div class="col s6 left file" ng-repeat="file in files" ng-click="fileView({{file.id}}, '{{file.visualizado}}', '{{file.link}}')" file-link="'{{file.link}}" style="background-image: url({{file.link}})">
+				<div class="file-content icon">
+					<h6 class="filename text-center center">{{file.imagem}}</h6>
+				</div>
+			</div>
+		</div>
     </ion-content>
 </ion-view>
