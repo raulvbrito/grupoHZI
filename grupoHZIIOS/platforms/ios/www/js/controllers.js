@@ -75,20 +75,20 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             };
             
             $scope.pushRegister = function() {
-            $log.info('Ionic Push: Registering user');
-            
-            // Register with the Ionic Push service.  All parameters are optional.
-            $ionicPush.register({
-                                canShowAlert: true, //Can pushes show an alert on your screen?
-                                canSetBadge: true, //Can pushes update app icon badges?
-                                canPlaySound: true, //Can notifications play a sound?
-                                canRunActionsOnWake: true, //Can run actions outside the app,
-                                onNotification: function(notification) {
-                                // Handle new push notifications here
-                                // $log.info(notification);
-                                return true;
-                                }
-                                });
+				$ionicPush.register({
+					canShowAlert: true,
+					canSetBadge: true,
+					canPlaySound: true,
+					canRunActionsOnWake: true,
+					onNotification: function(notification) {
+						console.log(notification);
+						$ionicPopup.alert({
+							title: notification.alert.split('|')[0],
+							template: notification.alert.split('|')[1]
+						});
+						return true;
+					}
+				});
             };
             
             })
