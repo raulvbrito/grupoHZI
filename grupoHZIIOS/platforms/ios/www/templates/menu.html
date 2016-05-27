@@ -7,6 +7,12 @@
             <ion-nav-buttons side="left">
                 <button class="button button-icon button-clear ion-navicon" menu-toggle="left"></button>
             </ion-nav-buttons>
+			
+			<ion-nav-buttons side="right">
+                <div class="badge bg-red white" ng-click="showNotifications()">{{notificationCounter}}</div>
+                <button class="button button-icon button-clear {{rightIcon}} white" ng-click="showNotifications()"></button>
+            </ion-nav-buttons>
+			
         </ion-nav-bar>
         <ion-nav-view name="menuContent"></ion-nav-view>
     </ion-side-menu-content>
@@ -18,8 +24,7 @@
         <ion-content overflow-scroll=â€�trueâ€�>
             <ion-list>
                 <ion-item menu-close href="#/app/perfil">
-<!--                    <i class="icon ion-ios-person"></i>-->
-                    Meu Perfil
+                    Notificação
                 </ion-item>
                 <ion-item menu-close href="#/app/agendamentos">
                     Agendamentos

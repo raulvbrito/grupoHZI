@@ -93,190 +93,195 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
             
             })
 
-.controller('AppCtrl', function($scope, $ionicPopup, $state, $cordovaCamera, $timeout, $cordovaFileTransfer, $ionicLoading, $cordovaDialogs, $cordovaImagePicker, $cordovaEmailComposer, $cordovaToast) {
+.controller('AppCtrl', function($scope, $ionicPopup, $state, $cordovaCamera, $timeout, $cordovaFileTransfer, $ionicLoading, $cordovaDialogs, $cordovaImagePicker, $cordovaEmailComposer, $cordovaToast, $rootScope) {
             $scope.data = {};
             
             $scope.app = function() {}
             
             $scope.submitting = false;
+			
+			$rootScope.$on('$stateChangeSuccess', function(){
+				if($state.current.url == '/agendamentos'){
+					$scope.rightIcon = 'ion-ios-plus-empty';
+				}else if($state.current.url == '/enviar_arquivos'){
+					$scope.rightIcon = 'ion-ios-camera';
+				}else{
+					$scope.rightIcon = '';
+				}
+			});
             
             $scope.takePicture = function(){
-            $('.loading').fadeIn();
-            var options = {
-            quality: 40,
-            destinationType: Camera.DestinationType.FILE_URI,
-            sourceType: Camera.PictureSourceType.CAMERA,
-            };
+				$('.loading').fadeIn();
+				var options = {
+					quality: 40,
+					destinationType: Camera.DestinationType.FILE_URI,
+					sourceType: Camera.PictureSourceType.CAMERA
+				};
             
-            $cordovaCamera.getPicture(options).then(function(imageURI) {
-                                                    $scope.saveFileToLocalStorage(imageURI, 'jpg');
+				$cordovaCamera.getPicture(options).then(function(imageURI) {
+					$scope.saveFileToLocalStorage(imageURI, 'jpg');
 													
-													setTimeout(function(){
-															   $cordovaToast.showLongBottom('Foto capturada').then(function(success) {}, function (error) {});
-														}, 1000);
-                                                    }, function(err) {
-                                                    $('.loading').fadeOut();
-                                                    });
-            
-            
-            //$cordovaCamera.cleanup().then(...);
-												}
+					setTimeout(function(){
+					   $cordovaToast.showLongBottom('Foto capturada').then(function(success) {}, function (error) {});
+					}, 1000);
+				}, function(err) {
+					$('.loading').fadeOut();
+				});
+			}
             
             $scope.saveFileToLocalStorage = function(file, type){
-            console.log(file);
-            console.log(type);
-            var newFileArray = [];
-            var files = [];
-            var fileArray = {};
-            var filesToUpload = localStorage.getItem('filesToUpload');
-            
-            if(filesToUpload != null && filesToUpload != ''){
-            fileArray.fileURI = file;
-            fileArray.fileType = type;
-            
-            newFileArray = JSON.parse(filesToUpload);
-            newFileArray.push(fileArray);
-            
-            localStorage.setItem('filesToUpload', JSON.stringify(newFileArray));
-            }else{
-            fileArray.fileURI = file;
-            fileArray.fileType = type;
-            
-            files.push(fileArray);
-            
-            localStorage.setItem('filesToUpload', JSON.stringify(files));
-            }
-            
-            $scope.fileGrid();
+				console.log(file);
+				console.log(type);
+				var newFileArray = [];
+				var files = [];
+				var fileArray = {};
+				var filesToUpload = localStorage.getItem('filesToUpload');
+				
+				if(filesToUpload != null && filesToUpload != ''){
+					fileArray.fileURI = file;
+					fileArray.fileType = type;
+					
+					newFileArray = JSON.parse(filesToUpload);
+					newFileArray.push(fileArray);
+					
+					localStorage.setItem('filesToUpload', JSON.stringify(newFileArray));
+				}else{
+					fileArray.fileURI = file;
+					fileArray.fileType = type;
+					
+					files.push(fileArray);
+					
+					localStorage.setItem('filesToUpload', JSON.stringify(files));
+				}
             }
 			
             $scope.fileGrid = function(){
-            var filesToUpload = JSON.parse(localStorage.getItem('filesToUpload'));
-            var fileName;
-            $('.files-to-upload-container').html('');
-            
-            if(localStorage.getItem('filesToUpload') != null){
-            $.each(filesToUpload, function(key, file){
-                   fileName = filesToUpload[key].fileURI.substr(filesToUpload[key].fileURI.lastIndexOf('/')+1);
-                   if(filesToUpload[key].fileURI.indexOf("content://") > -1)
-                   fileName = fileName+"."+filesToUpload[key].fileType;
-                   $('.files-to-upload-container').append('<div class="col col-50 file" style="background-image: url('+filesToUpload[key].fileURI+')" ng-click="sendEmail('+filesToUpload[key].fileURI+')"><div class="file-content icon '+filesToUpload[key].fileType+'"><h6 class="filename text-center center">'+fileName+'</h6></div></div>');
-				   //$scope.sendEmail(encodeURI(filesToUpload[key].fileURI));
+				var filesToUpload = JSON.parse(localStorage.getItem('filesToUpload'));
+				var fileName;
+				$('.files-to-upload-container').html('');
+				
+				if(localStorage.getItem('filesToUpload') != null){
+					$.each(filesToUpload, function(key, file){
+					   fileName = filesToUpload[key].fileURI.substr(filesToUpload[key].fileURI.lastIndexOf('/')+1);
+					   if(filesToUpload[key].fileURI.indexOf("content://") > -1)
+						   fileName = fileName+"."+filesToUpload[key].fileType;
+						   
+						   $('.files-to-upload-container').append('<div class="col col-50 file" style="background-image: url('+filesToUpload[key].fileURI+')" ng-click="sendEmail('+filesToUpload[key].fileURI+')"><div class="file-content icon '+filesToUpload[key].fileType+'"><h6 class="filename text-center center">'+fileName+'</h6></div></div>');
+						   //$scope.sendEmail(encodeURI(filesToUpload[key].fileURI));
                    });
 			
+				}
+            
+				$('.loading').fadeOut();
             }
             
-            $('.loading').fadeOut();
-            }
-            
-            $scope.uploadFile = function(filePosition){
-            $scope.submitting = true;
-            if(localStorage.getItem('filesToUpload') != null){
-            $('.loading').fadeIn();
-            var trustHosts = true;
-            var filesToUpload = JSON.parse(localStorage.getItem('filesToUpload'));
-            var options = {};
-            options.fileKey="file";
-            options.fileName = filesToUpload[filePosition].fileURI.substr(filesToUpload[filePosition].fileURI.lastIndexOf('/')+1);;
-            options.mimeType="*/*";
-            options.chunkedMode = true;
-            options.headers = {
-            Connection: "close"
-            };
-            
-            
-            
-            $cordovaFileTransfer.upload(encodeURI("http://hzi.net.br/contract_key/ajax/set_file_save/"), filesToUpload[filePosition].fileURI, options, true)
-            .then(function(result) {
-                  console.log(result);
-                  var filesToUpload = JSON.parse(localStorage.getItem('filesToUpload'));
-                  
-                  if((filesToUpload.length - 1) != filePosition++){
-                  $scope.uploadFile(filePosition++);
-                  }else{
-                  localStorage.removeItem('filesToUpload');
-                  $('.progress').fadeOut();
-                  
-                  $scope.fileGrid();
+            $scope.uploadFile = function(filePosition, formData){
+				$scope.submitting = true;
+				if(localStorage.getItem('filesToUpload') != null){
+					$('.loading').fadeIn();
+					var trustHosts = true;
+					var filesToUpload = JSON.parse(localStorage.getItem('filesToUpload'));
+					var options = {};
+					options.fileKey="file";
+					options.fileName = filesToUpload[filePosition].fileURI.substr(filesToUpload[filePosition].fileURI.lastIndexOf('/')+1);
+					options.mimeType="*/*";
+					options.chunkedMode = true;
+					options.headers = {
+						Connection: "close"
+					};
+					options.id_categoria = formData.id_categoria;
+			
+					console.log(formData);
+			
+					$cordovaFileTransfer.upload(encodeURI("http://hzi.net.br/contract_key/ajax/set_image/"), filesToUpload[filePosition].fileURI, options, true).then(function(result) {
+						  console.log(result);
+						  var filesToUpload = JSON.parse(localStorage.getItem('filesToUpload'));
 				  
-				  setTimeout(function(){
-							 $cordovaToast.showLongBottom('Arquivos enviados').then(function(success) {}, function (error) {});
-					}, 1000);
-                  }
-                  $scope.submitting = false;
-                  // Success!
-                  }, function(err) {
-                  console.log(err);
-                  $('.loading').fadeOut();
-                  //var alertPopup = $ionicPopup.alert({
-                  //                                   title: 'Falha no envio de arquivos',
-                  //                                   template: 'Ocorreu um erro no envio de arquivos'
-                  //                                   });
-                  $cordovaDialogs.alert('Ocorreu um erro no envio de arquivos', 'Atencao', 'OK').then(function(){});
-                  $scope.submitting = false;
-                  // Error
-                  }, function (progress) {
-                  });
-            }
+						  if((filesToUpload.length - 1) != filePosition++){
+							  $scope.uploadFile(filePosition++);
+						  }else{
+							  localStorage.removeItem('filesToUpload');
+							  $('.progress').fadeOut();
+							  
+							  $scope.fileGrid();
+				  
+							  setTimeout(function(){
+								 $cordovaToast.showLongBottom('Arquivos enviados').then(function(success) {}, function (error) {});
+							  }, 1000);
+						  }
+						  
+						  $scope.submitting = false;
+						}, function(err) {
+						  console.log(err);
+						  $('.loading').fadeOut();
+						  
+						  //  var alertPopup = $ionicPopup.alert({
+						  //	title: 'Falha no envio de arquivos',
+						  //    template: 'Ocorreu um erro no envio de arquivos'
+						  //  });
+						  
+						  $cordovaDialogs.alert('Ocorreu um erro no envio de arquivos', 'Atencao', 'OK').then(function(){});
+						  $scope.submitting = false;
+						}, function (progress) {
+							console.log(progress);
+						}
+					);
+				}
             }
 			
 			$scope.sendEmail = function(fileURI){
-			console.log(fileURI);
-			var email = {
-			to: 'raulvbrito@gmail.com',
-			attachments: [
-						  fileURI
-						  ],
-			subject: 'Arquivo via Email',
-			body: 'Prezado(a) Cliente, <br><br> Você acaba de receber um(a) <b>arquivo</b>. Clique no mesmo para abri-lo ou baixa-lo.',
-			isHtml: true
-			};
-			$cordovaEmailComposer.open(email).then(null, function(){});
+				console.log(fileURI);
+				var email = {
+					to: 'raulvbrito@gmail.com',
+					attachments: [
+					  fileURI
+					],
+					subject: 'Arquivo via Email',
+					body: 'Prezado(a) Cliente, <br><br> Você acaba de receber um(a) <b>arquivo</b>. Clique no mesmo para abri-lo ou baixa-lo.',
+					isHtml: true
+				};
+			
+				$cordovaEmailComposer.open(email).then(null, function(){});
 			}
 			
 			$scope.downloadFile = function(fileURL){
-			$('.loading').fadeIn();
-			var url = "http://cdn.wall-pix.net/albums/art-space/00030109.jpg";
-			var targetPath = cordova.file.documentsDirectory + "testImage.png";
-			var trustHosts = true;
-			var options = {};
-			
-			$cordovaFileTransfer.download(url, targetPath, options, trustHosts)
-			.then(function(result) {
-				  // Success!
+				$('.loading').fadeIn();
+				var url = "http://cdn.wall-pix.net/albums/art-space/00030109.jpg";
+				var targetPath = cordova.file.documentsDirectory + "testImage.png";
+				var trustHosts = true;
+				var options = {};
+							
+				$cordovaFileTransfer.download(url, targetPath, options, trustHosts).then(function(result) {
 				  console.log(result);
 				  console.log('baixou');
-      }, function(err) {
-				  // Error
+				}, function(err) {
 				  console.log(err);
 				  console.log('deu erro no download');
-      }, function (progress) {
+				}, function (progress) {
 				  $timeout(function () {
-						   $scope.downloadProgress = (progress.loaded / progress.total) * 100;
-						   })
-      });
+					$scope.downloadProgress = (progress.loaded / progress.total) * 100;
+				  });
+				});
 			}
 			
 			$scope.pickFile = function(){
-			var options = {
-   maximumImagesCount: 10,
-   width: 800,
-   height: 800,
-   quality: 80
-			};
+				var options = {
+				   maximumImagesCount: 10,
+				   width: 800,
+				   height: 800,
+				   quality: 80
+				};
 			
-			$cordovaImagePicker.getPictures(options)
-			.then(function (results) {
-      for (var i = 0; i < results.length; i++) {
-				  $scope.saveFileToLocalStorage(results[i], 'jpg');
-      }
+				$cordovaImagePicker.getPictures(options).then(function (results) {
+				  for (var i = 0; i < results.length; i++) {
+					  $scope.saveFileToLocalStorage(results[i], 'jpg');
+				  }
                   setTimeout(function(){
 						$cordovaToast.showLongBottom('Arquivos selecionados').then(function(success) {}, function (error) {});
-					}, 1000);
-				  }, function(error) {
-      // error getting photos
+				  }, 1000);
+				}, function(error) {
 				  console.log(error);
-				  });
+				});
 			}
             
             $scope.doRefresh = function(){
@@ -291,7 +296,7 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
 				$state.go('login');
 			}
             
-            })
+})
 
 .controller('PerfilCtrl', function($scope, $state) {
             $scope.data = {};
@@ -301,26 +306,26 @@ angular.module('grupoHZIApp.controllers', ['ngCordova', 'angular-ladda'])
 			console.log('teste notifi');
             var userData = JSON.parse(localStorage.getItem('userData'));
             var request = $.ajax({
-                                 url: "http://hzi.net.br/contract_key/ajax/get_notification/",
-                                 method: "POST",
-                                 data: { email : userData.email.toString(), password: userData.password.toString() },
-                                 dataType: "json"
-                                 });
-            
+				url: "http://hzi.net.br/contract_key/ajax/get_notification/",
+				method: "POST",
+				data: { email : userData.email.toString(), password: userData.password.toString() },
+				dataType: "json"
+			});
+			
             request.done(function(msg) {
-                         console.log(msg);
-                         if(msg){
-                         console.log(msg);
-							$.each(msg, function(index, notification){
-                                console.log(notification);
-                                $('.notification-container').append('<div class="col s6 left notification"><div class="notification-content icon"><h5 class="notification-name">'+notification.descricao+'</h5><h6 class="notification-time">'+notification.data_cadastro.split(' ')[0].split('-')[2]+'/'+notification.data_cadastro.split(' ')[0].split('-')[1]+'/'+notification.data_cadastro.split(' ')[0].split('-')[0]+' '+notification.data_cadastro.split(' ')[1].split(':')[0]+':'+notification.data_cadastro.split(' ')[1].split(':')[1]+'</h6></div></div>');
-                                console.log($('.files-to-download-container').html());
-							});
-                         }else{
-                         console.log('deu ruim');
-                         }
-                         });
-            })
+				console.log(msg);
+				if(msg){
+					console.log(msg);
+					$.each(msg, function(index, notification){
+						console.log(notification);
+						$('.notification-container').append('<div class="col s6 left notification"><div class="notification-content icon"><h5 class="notification-name">'+notification.descricao+'</h5><h6 class="notification-time">'+notification.data_cadastro.split(' ')[0].split('-')[2]+'/'+notification.data_cadastro.split(' ')[0].split('-')[1]+'/'+notification.data_cadastro.split(' ')[0].split('-')[0]+' '+notification.data_cadastro.split(' ')[1].split(':')[0]+':'+notification.data_cadastro.split(' ')[1].split(':')[1]+'</h6></div></div>');
+						console.log($('.files-to-download-container').html());
+					});
+				}else{
+					 console.log('deu ruim');
+				}
+			});
+})
 
 .controller('AgendamentosCtrl', function($scope, $state) {
             $scope.data = {};
